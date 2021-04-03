@@ -34,7 +34,7 @@ class Board(object):
 
                 # drop into store if players side
                 if side == player:
-                    self.sides[side].store += 1;
+                    self.sides[side].store += 1
 
                     # last stone the player gets another go
                     if stones == 1:
@@ -55,17 +55,17 @@ class Board(object):
 
             # if last stone on player pocket take other side.
             if side == player and stones == 1 and self.sides[side].pockets[pocket] == 0:
-                self.sides[side].store += 1;
-                self.sides[side].pockets[pocket] = 0;
+                self.sides[side].store += 1
+                self.sides[side].pockets[pocket] = 0
 
                 if side == 0:
                     self.sides[side].store = self.sides[1].pockets[pocket]
-                    self.sides[1].pockets[pocket] = 0;
+                    self.sides[1].pockets[pocket] = 0
                 else:
                     self.sides[side].store = self.sides[0].pockets[pocket]
-                    self.sides[0].pockets[pocket] = 0;
+                    self.sides[0].pockets[pocket] = 0
 
-                break;
+                break
 
             # standard old go.
             self.sides[side].pockets[pocket] += 1
@@ -75,7 +75,7 @@ class Board(object):
         # if one player has empty side then the other takes all there remaining stones.
         for s in range(0, 2):
 
-            t = 0;
+            t = 0
             for p in range(0, 6):
                 t += self.sides[s].pockets[p]
 
@@ -93,19 +93,19 @@ class Board(object):
                 else:
                     self.sides[0].store += t
 
-                break;
+                break
 
         return replay
 
     def print_board(self):
 
-        print("S({0:2d}) ".format(self.sides[0].store), end='');
+        print("S({0:2d}) ".format(self.sides[0].store), end='')
         for p in range(5, -1, -1):
             print("({0:2d}) ".format(self.sides[0].pockets[p]), end='')
-        print();
+        print()
 
         print("      ", end='')
         for p in range(0, 6):
             print("({0:2d}) ".format(self.sides[1].pockets[p]), end='')
         print("S({0:2d})".format(self.sides[1].store), end='')
-        print();
+        print()
