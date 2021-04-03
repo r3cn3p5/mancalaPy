@@ -16,7 +16,14 @@ class Board(object):
         for s in range(0, 2):
             self.sides.append(BoardSide())
 
-    def play(self, player, pocket):
+    def validate_move(self, player, pocket):
+
+        if 0 < player > 1:
+            return False
+
+        return True
+
+    def make_move(self, player, pocket):
 
         replay = False
 
@@ -97,15 +104,17 @@ class Board(object):
 
         return replay
 
-    def print_board(self):
+    def __str__(self):
 
-        print("S({0:2d}) ".format(self.sides[0].store), end='')
+        str = "S({0:2d}) ".format(self.sides[0].store)
+
         for p in range(5, -1, -1):
-            print("({0:2d}) ".format(self.sides[0].pockets[p]), end='')
-        print()
+            str += "{0:1d}({1:2d}) ".format(p+1, self.sides[0].pockets[p])
+        str += "\n"
 
-        print("      ", end='')
+        str += "      "
         for p in range(0, 6):
-            print("({0:2d}) ".format(self.sides[1].pockets[p]), end='')
-        print("S({0:2d})".format(self.sides[1].store), end='')
-        print()
+            str += "{0:1d}({1:2d}) ".format(p+1, self.sides[1].pockets[p])
+        str += "S({0:2d})".format(self.sides[1].store)
+
+        return str
