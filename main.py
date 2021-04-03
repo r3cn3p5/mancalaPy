@@ -28,12 +28,10 @@ while True:
     if pocket == 0:
         break
 
-    if not(game.make_move(player, pocket-1)):
+    if not (game.make_move(player, pocket - 1)):
         if player == 0:
             player = 1
         else:
             player = 0
 
     print(game)
-
-
