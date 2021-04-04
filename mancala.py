@@ -1,4 +1,4 @@
-class BoardSide(object):
+class BoardSide:
 
     def __init__(self):
         self._store = 0
@@ -19,7 +19,7 @@ class BoardSide(object):
         return self._pockets
 
 
-class Board(object):
+class Board:
 
     def __init__(self):
 
@@ -29,7 +29,16 @@ class Board(object):
 
     def validate_move(self, player, pocket):
 
-        if 0 < player > 1:
+        if not 0 <= player <= 1:
+            print("Invalid player {}".format(player))
+            return False
+
+        if not 0 < pocket <= 5:
+            print("Invalid pocket {}".format(pocket))
+            return False
+
+        if self._sides[player].pockets[pocket] == 0:
+            print("Not stones left")
             return False
 
         return True
@@ -115,17 +124,52 @@ class Board(object):
 
         return replay
 
+    def is_moves(self):
+
+        for p in range(0, 6):
+            if self._sides[0].pockets[p] > 0 or self._sides[1].pockets[p] > 0:
+                return True
+
+        return False
+
     def __str__(self):
 
-        str = "S({0:2d}) ".format(self._sides[0].store)
+        ret_str = "S({0:2d}) ".format(self._sides[0].store)
 
         for p in range(5, -1, -1):
-            str += "{0:1d}({1:2d}) ".format(p + 1, self._sides[0].pockets[p])
-        str += "\n"
+            ret_str += "{0:1d}({1:2d}) ".format(p + 1, self._sides[0].pockets[p])
+        ret_str += "\n"
 
-        str += "      "
+        ret_str += "      "
         for p in range(0, 6):
-            str += "{0:1d}({1:2d}) ".format(p + 1, self._sides[1].pockets[p])
-        str += "S({0:2d})".format(self._sides[1].store)
+            ret_str += "{0:1d}({1:2d}) ".format(p + 1, self._sides[1].pockets[p])
+        ret_str += "S({0:2d})".format(self._sides[1].store)
 
-        return str
+        return ret_str
+
+
+if __name__ == '__main__':
+    print('Lets play Mancala')
+
+    game = Board()
+    print(game)
+
+    current_player = 0
+    while game.is_moves():
+        selected_pocket = int(input("Player {0} please select a pocket (1-6)? ".format(current_player + 1)))
+
+        if selected_pocket == 0:
+            break
+
+        if not game.validate_move(current_player, selected_pocket - 1):
+            continue
+
+        if not (game.make_move(current_player, selected_pocket - 1)):
+            if current_player == 0:
+                current_player = 1
+            else:
+                current_player = 0
+
+        print(game)
+
+    print("Game Over")
