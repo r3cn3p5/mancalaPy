@@ -30,11 +30,11 @@ class Board:
     def validate_move(self, player, pocket):
 
         if not 0 <= player <= 1:
-            print("Invalid player {}".format(player))
+            print("Invalid player {}".format(player + 1))
             return False
 
-        if not 0 < pocket <= 5:
-            print("Invalid pocket {}".format(pocket))
+        if not 0 <= pocket <= 5:
+            print("Invalid pocket {}".format(pocket + 1))
             return False
 
         if self._sides[player].pockets[pocket] == 0:
@@ -64,33 +64,24 @@ class Board:
                     self._sides[side].store += 1
 
                     # last stone the player gets another go
-                    if stones == 1:
-                        replay = True
-                    else:
-                        replay = False
+                    replay = True if stones == 1 else False
+
                     stones -= 1
 
                 pocket = 0
 
                 # switch sides and continue
-                if side == 0:
-                    side = 1
-                else:
-                    side = 0
+                side = 1 if side == 0 else 0
 
                 continue
 
             # if last stone on player pocket take other side.
-            if side == player and stones == 1 and self._sides[side].pockets[pocket] == 0:
+            opposite_side = 1 if side == 0 else 0
+            if side == player and stones == 1 and self._sides[side].pockets[pocket] == 0 and self._sides[opposite_side].pockets[5 - pocket] > 0:
                 self._sides[side].store += 1
                 self._sides[side].pockets[pocket] = 0
-
-                if side == 0:
-                    self._sides[side].store = self._sides[1].pockets[pocket]
-                    self._sides[1].pockets[pocket] = 0
-                else:
-                    self._sides[side].store = self._sides[0].pockets[pocket]
-                    self._sides[0].pockets[pocket] = 0
+                self._sides[side].store += self._sides[opposite_side].pockets[5 - pocket]
+                self._sides[opposite_side].pockets[5 - pocket] = 0
 
                 break
 
@@ -124,13 +115,22 @@ class Board:
 
         return replay
 
-    def is_moves(self):
+    def has_a_player_won(self):
 
+        s1 = s2 = 0
         for p in range(0, 6):
-            if self._sides[0].pockets[p] > 0 or self._sides[1].pockets[p] > 0:
-                return True
+            s1 += self._sides[0].pockets[p]
+            s2 += self._sides[1].pockets[p]
 
-        return False
+        if s1 == 0 or s2 == 0:
+            if self._sides[0].store > self._sides[1].store:
+                return 0
+            elif self._sides[0].store < self._sides[1].store:
+                return 1
+            else:
+                return 3
+
+        return -1
 
     def __str__(self):
 
@@ -155,20 +155,28 @@ if __name__ == '__main__':
     print(game)
 
     current_player = 0
-    while game.is_moves():
-        selected_pocket = int(input("Player {0} please select a pocket (1-6)? ".format(current_player + 1)))
+    while True:
+        selected_pocket = int(input("Player {0} please select a pocket (1-6)? ".format(current_player + 1))) - 1
 
-        if selected_pocket == 0:
+        if selected_pocket == -1:
             break
 
-        if not game.validate_move(current_player, selected_pocket - 1):
+        if not game.validate_move(current_player, selected_pocket):
             continue
 
-        if not (game.make_move(current_player, selected_pocket - 1)):
-            if current_player == 0:
-                current_player = 1
+        replay_again = game.make_move(current_player, selected_pocket)
+
+        game_state = game.has_a_player_won()
+        if game_state >= 0:
+            print(game)
+            if game_state == 3:
+                print("Draw!")
             else:
-                current_player = 0
+                print("Player {} has won!".format(game_state + 1))
+            break
+
+        if not replay_again:
+            current_player = 1 if current_player == 0 else 0
 
         print(game)
 
