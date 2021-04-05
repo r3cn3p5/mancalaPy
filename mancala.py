@@ -21,12 +21,20 @@ class BoardSide:
 
 class Board:
 
+    STATUS_IN_PROGRESS = 0
+    STATUS_PLAYER_ONE_WINS = 1
+    STATUS_PLAYER_TWO_WINS = 2
+    STATUS_DRAW = 3
+    STATUS_PLAYER_REPLAY = 4
+    STATUS_INVALID_MOVE_NO_STONES = 5
+
     def __init__(self):
 
         self._sides = []
         for s in range(0, 2):
             self._sides.append(BoardSide())
 
+    # TODO: remove this and integrate into validate and have status reply
     def validate_move(self, player, pocket):
 
         if not 0 <= player <= 1:
@@ -44,7 +52,14 @@ class Board:
         return True
 
     def make_move(self, player, pocket):
+        """
 
+        :param player:
+        :param pocket:
+        :return:
+        """
+
+        # TODO: replace replay with status
         replay = False
 
         # player can only by 0 or 1
@@ -77,12 +92,14 @@ class Board:
 
             # if last stone on player pocket take other side.
             opposite_side = 1 if side == 0 else 0
-            if side == player and stones == 1 and self._sides[side].pockets[pocket] == 0 and self._sides[opposite_side].pockets[5 - pocket] > 0:
+            if side == player \
+                    and stones == 1 \
+                    and self._sides[side].pockets[pocket] == 0 \
+                    and self._sides[opposite_side].pockets[5 - pocket] > 0:
                 self._sides[side].store += 1
                 self._sides[side].pockets[pocket] = 0
                 self._sides[side].store += self._sides[opposite_side].pockets[5 - pocket]
                 self._sides[opposite_side].pockets[5 - pocket] = 0
-
                 break
 
             # standard old go.
@@ -115,7 +132,7 @@ class Board:
 
         return replay
 
-    def has_a_player_won(self):
+    def game_status(self):
 
         s1 = s2 = 0
         for p in range(0, 6):
@@ -156,6 +173,7 @@ if __name__ == '__main__':
 
     current_player = 0
     while True:
+        # TODO: Need to handle non-numeric input
         selected_pocket = int(input("Player {0} please select a pocket (1-6)? ".format(current_player + 1))) - 1
 
         if selected_pocket == -1:
@@ -164,20 +182,19 @@ if __name__ == '__main__':
         if not game.validate_move(current_player, selected_pocket):
             continue
 
-        replay_again = game.make_move(current_player, selected_pocket)
-
-        game_state = game.has_a_player_won()
-        if game_state >= 0:
-            print(game)
-            if game_state == 3:
-                print("Draw!")
-            else:
-                print("Player {} has won!".format(game_state + 1))
-            break
-
-        if not replay_again:
-            current_player = 1 if current_player == 0 else 0
+        player_replay_again = game.make_move(current_player, selected_pocket)
 
         print(game)
+
+        game_status = game.game_status()
+        if game_status > 0:
+            if game_status == Board.STATUS_DRAW:
+                print("Draw!")
+            else:
+                print("Player {} has won!".format(game_status))
+            break
+
+        if not player_replay_again:
+            current_player = 1 if current_player == 0 else 0
 
     print("Game Over")
