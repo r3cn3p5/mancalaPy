@@ -20,7 +20,6 @@ class BoardSide:
 
 
 class Board:
-
     STATUS_IN_PROGRESS = 0
     STATUS_PLAYER_ONE_WINS = 1
     STATUS_PLAYER_TWO_WINS = 2
@@ -165,6 +164,17 @@ class Board:
         return ret_str
 
 
+def get_pocket_from_player(player):
+    while True:
+        pocket_input = input("Player {0} please select a pocket (1-6)? ".format(player + 1))
+
+        if pocket_input.isnumeric():
+            pocket_int = int(pocket_input)-1
+
+            if -1 <= pocket_int < 6:
+                return pocket_int
+
+
 if __name__ == '__main__':
     print('Lets play Mancala')
 
@@ -173,8 +183,7 @@ if __name__ == '__main__':
 
     current_player = 0
     while True:
-        # TODO: Need to handle non-numeric input
-        selected_pocket = int(input("Player {0} please select a pocket (1-6)? ".format(current_player + 1))) - 1
+        selected_pocket = get_pocket_from_player(current_player)
 
         if selected_pocket == -1:
             break
