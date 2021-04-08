@@ -1,0 +1,2 @@
+# mancalaPy
+Mancala Python version
