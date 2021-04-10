@@ -34,12 +34,6 @@ class Board:
             self._sides.append(BoardSide())
 
     def make_move(self, player, pocket):
-        """
-
-        :param player:
-        :param pocket:
-        :return:
-        """
 
         if self._sides[player].pockets[pocket] == 0:
             return Board.STATUS_INVALID_MOVE_NO_STONES
@@ -47,31 +41,22 @@ class Board:
         status = Board.STATUS_IN_PROGRESS
         side = player
 
-        # lets get the initial
         stones = self._sides[side].pockets[pocket]
         self._sides[side].pockets[pocket] = 0
         pocket += 1
 
         while stones > 0:
-
             if pocket >= 6:
-
-                # drop into store if players side
                 if side == player:
                     self._sides[side].store += 1
-
-                    # last stone the player gets another go
                     status = Board.STATUS_PLAYER_REPLAY if stones == 1 else status
                     stones -= 1
 
                 pocket = 0
 
-                # switch sides and continue
                 side = 1 if side == 0 else 0
-
                 continue
 
-            # if last stone on player pocket take other side.
             opposite_side = 1 if side == 0 else 0
             if side == player \
                     and stones == 1 \
@@ -83,7 +68,6 @@ class Board:
                 self._sides[opposite_side].pockets[5 - pocket] = 0
                 break
 
-            # standard old go.
             self._sides[side].pockets[pocket] += 1
             stones -= 1
             pocket += 1
@@ -109,7 +93,6 @@ class Board:
                     status = Board.STATUS_PLAYER_TWO_WINS
                 else:
                     status = Board.STATUS_DRAW
-
                 break
 
         return status
@@ -117,12 +100,9 @@ class Board:
     def __str__(self):
 
         ret_str = "S({0:2d}) ".format(self._sides[0].store)
-
         for p in range(5, -1, -1):
             ret_str += "{0:1d}({1:2d}) ".format(p + 1, self._sides[0].pockets[p])
-        ret_str += "\n"
-
-        ret_str += "      "
+        ret_str += "\n      "
         for p in range(0, 6):
             ret_str += "{0:1d}({1:2d}) ".format(p + 1, self._sides[1].pockets[p])
         ret_str += "S({0:2d})".format(self._sides[1].store)
@@ -155,16 +135,15 @@ if __name__ == '__main__':
             break
 
         game_status = game.make_move(current_player, selected_pocket)
-
         print(game)
 
         if game_status == Board.STATUS_IN_PROGRESS:
             current_player = 1 if current_player == 0 else 0
         elif game_status == Board.STATUS_PLAYER_ONE_WINS:
-            print ("Player 1 has won!")
+            print("Player 1 has won!")
             break
         elif game_status == Board.STATUS_PLAYER_TWO_WINS:
-            print ("Player 2 has won!")
+            print("Player 2 has won!")
             break
         elif game_status == Board.STATUS_DRAW:
             print("Draw!")
@@ -172,7 +151,6 @@ if __name__ == '__main__':
         elif game_status == Board.STATUS_PLAYER_REPLAY:
             print("You get another go!")
         elif game_status == Board.STATUS_INVALID_MOVE_NO_STONES:
-            print("Ooops no stones in that pocket")
-            pass
+            print("Oh dear no stones in that pocket")
 
     print("Game Over")
