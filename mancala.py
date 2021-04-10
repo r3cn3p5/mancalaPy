@@ -33,23 +33,6 @@ class Board:
         for s in range(0, 2):
             self._sides.append(BoardSide())
 
-    # TODO: remove this and integrate into validate and have status reply
-    def validate_move(self, player, pocket):
-
-        if not 0 <= player <= 1:
-            print("Invalid player {}".format(player + 1))
-            return False
-
-        if not 0 <= pocket <= 5:
-            print("Invalid pocket {}".format(pocket + 1))
-            return False
-
-        if self._sides[player].pockets[pocket] == 0:
-            print("Not stones left")
-            return False
-
-        return True
-
     def make_move(self, player, pocket):
         """
 
@@ -58,10 +41,10 @@ class Board:
         :return:
         """
 
-        # TODO: replace replay with status
-        replay = False
+        if self._sides[player].pockets[pocket] == 0:
+            return Board.STATUS_INVALID_MOVE_NO_STONES
 
-        # player can only by 0 or 1
+        status = Board.STATUS_IN_PROGRESS
         side = player
 
         # lets get the initial
@@ -78,8 +61,7 @@ class Board:
                     self._sides[side].store += 1
 
                     # last stone the player gets another go
-                    replay = True if stones == 1 else False
-
+                    status = Board.STATUS_PLAYER_REPLAY if stones == 1 else status
                     stones -= 1
 
                 pocket = 0
@@ -108,6 +90,7 @@ class Board:
 
         # if one player has empty side then the other takes all there remaining stones.
         for s in range(0, 2):
+            os = 1 if s == 0 else 0
 
             t = 0
             for p in range(0, 6):
@@ -115,38 +98,21 @@ class Board:
 
             if t == 0:
                 for p in range(0, 6):
-                    if s == 0:
-                        t += self._sides[1].pockets[p]
-                        self._sides[1].pockets[p] = 0
-                    else:
-                        t += self._sides[0].pockets[p]
-                        self._sides[0].pockets[p] = 0
+                    t += self._sides[os].pockets[p]
+                    self._sides[os].pockets[p] = 0
 
-                if s == 0:
-                    self._sides[1].store += t
+                self._sides[os].store += t
+
+                if self._sides[0].store > self._sides[1].store:
+                    status = Board.STATUS_PLAYER_ONE_WINS
+                elif self._sides[0].store < self._sides[1].store:
+                    status = Board.STATUS_PLAYER_TWO_WINS
                 else:
-                    self._sides[0].store += t
+                    status = Board.STATUS_DRAW
 
                 break
 
-        return replay
-
-    def game_status(self):
-
-        s1 = s2 = 0
-        for p in range(0, 6):
-            s1 += self._sides[0].pockets[p]
-            s2 += self._sides[1].pockets[p]
-
-        if s1 == 0 or s2 == 0:
-            if self._sides[0].store > self._sides[1].store:
-                return 0
-            elif self._sides[0].store < self._sides[1].store:
-                return 1
-            else:
-                return 3
-
-        return -1
+        return status
 
     def __str__(self):
 
@@ -188,22 +154,25 @@ if __name__ == '__main__':
         if selected_pocket == -1:
             break
 
-        if not game.validate_move(current_player, selected_pocket):
-            continue
-
-        player_replay_again = game.make_move(current_player, selected_pocket)
+        game_status = game.make_move(current_player, selected_pocket)
 
         print(game)
 
-        game_status = game.game_status()
-        if game_status > 0:
-            if game_status == Board.STATUS_DRAW:
-                print("Draw!")
-            else:
-                print("Player {} has won!".format(game_status))
-            break
-
-        if not player_replay_again:
+        if game_status == Board.STATUS_IN_PROGRESS:
             current_player = 1 if current_player == 0 else 0
+        elif game_status == Board.STATUS_PLAYER_ONE_WINS:
+            print ("Player 1 has won!")
+            break
+        elif game_status == Board.STATUS_PLAYER_TWO_WINS:
+            print ("Player 2 has won!")
+            break
+        elif game_status == Board.STATUS_DRAW:
+            print("Draw!")
+            break
+        elif game_status == Board.STATUS_PLAYER_REPLAY:
+            print("You get another go!")
+        elif game_status == Board.STATUS_INVALID_MOVE_NO_STONES:
+            print("Ooops no stones in that pocket")
+            pass
 
     print("Game Over")
