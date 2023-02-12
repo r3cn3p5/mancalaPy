@@ -2,10 +2,7 @@
 
 https://en.wikipedia.org/wiki/Mancala
 
-## Game loop
-
-
-## MakeMoves
+## Python - Mancala Game
 
 
 
